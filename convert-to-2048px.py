@@ -1,8 +1,9 @@
-from PIL     import Image
-from sys     import argv
-from math    import floor
-from os      import listdir, mkdir
-from os.path import abspath, isdir
+from PIL        import Image
+from sys        import argv
+from math       import floor
+from os         import listdir, mkdir
+from os.path    import abspath, isdir
+from threading  import Thread
 
 # # input series of files
 # scan the dir
@@ -11,13 +12,10 @@ from os.path import abspath, isdir
 # convert to png
 # save
 
-_w = 2048
-the_path = ""
 files = []
-total = 0
 
 if not argv[1:]:
-    the_path = input("Drag and drop your folder here: ")
+    the_path = input("[ >>>> ] Drag or enter path to your folder: ")
     if '"' in the_path:
         the_path = the_path.replace('"', '')
     if "'" in the_path:
@@ -25,8 +23,18 @@ if not argv[1:]:
 else:
     the_path = argv[1]
 
+try:
+    _w = int(input("[ >>>> ] Enter pixel to convert (default 2048px): "))
+except:
+    _w = 2048
+
+try:
+    _t = int(input("[ >>>> ] Enter amount of thread (default is 1): "))
+except:
+    _t = 1
+
 par_path = the_path
-the_path = the_path + "\\converted"
+the_path = the_path + "/converted"
 
 if not isdir(the_path):
     mkdir(the_path)
@@ -37,53 +45,107 @@ def scan(par_path):
     files = []
     for i in lst:
         if "." in i:
-            if i.split(".")[1].lower() in ["jpg", "png"]:
-                files.append(f"{par_path}\\{i}")
-    with open(the_path+"\\file_dir.txt", "w+") as f:
+            if i.split(".")[1].lower() in ["jpg", "png", "jpeg"]:
+                files.append(f"{par_path}/{i}")
+    with open(the_path+"/file_dir.txt", "w+") as f:
         for i in files:
             print(i, file=f)
     global total 
     total = len(files)
-    print(f"Found {total} files.")
+    print(f"[ **** ] Found {total} images.\n")
 
-def convert(img):
-    ow = oh = 0
-    iw = ih = 0
+def convert():
+    global files
+    while files:
+        img = files.pop(0)
+        ow = oh = 0
+        iw = ih = 0
 
-    i = Image.open(img);
-    (iw, ih) = i.size
-    
-    scale = iw / _w
+        i = Image.open(img);
+        (iw, ih) = i.size
+        
+        scale = iw / _w
 
-    ow = floor(iw / scale)
-    oh = floor(ih / scale)
+        ow = floor(iw / scale)
+        oh = floor(ih / scale)
 
-    i = i.resize((ow, oh))
-    
-    img = img.split("\\")[-1]
+        i = i.resize((ow, oh))
+        
+        img = img.split("/")[-1]
+        
+        i.save(f"{the_path}/{img.split('.')[0]}.png")
+        
+    else:
+        return
 
-    # print(f"{img}", end="\r")
-    
-    i.save(f"{the_path}\\{img.split('.')[0]}.png")
-    
-    # print(f"{img} Done!")
+def show_progress(ending):
+    from time import sleep
+    s = 0.1
+    while True:
+        converted = abs(total - len(files))
+        t = f"<-     > Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s)
+        converted = abs(total - len(files))
+        t = f"< -    > Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s)
+        converted = abs(total - len(files))
+        t = f"<  -   > Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s)
+        converted = abs(total - len(files))
+        t = f"<   -  > Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s)
+        converted = abs(total - len(files))
+        t = f"<    - > Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s)
+        converted = abs(total - len(files))
+        t = f"<     -> Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s+s)
+        converted = abs(total - len(files))
+        t = f"<    - > Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s)
+        converted = abs(total - len(files))
+        t = f"<   -  > Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s)
+        converted = abs(total - len(files))
+        t = f"<  -   > Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s)
+        converted = abs(total - len(files))
+        t = f"< -    > Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s)
+        converted = abs(total - len(files))
+        t = f"<-     > Converting [{converted}/{total}] images."
+        print(t, end=ending)
+        sleep(s)
+        if not files:
+            converted = abs(total - len(files))
+            print(f"[ Done ] Converted [{converted}/{total}] images")
+            return
 
-def show_progress(total):
-    leng = 50
-    fill = "="
-    remain = abs(len(files) - total)
-    rate = remain / total
-    filled = int(leng * rate)
-    progress = fill * filled + " " * (leng - filled)
-    t = f" [{remain}/{total}] | [{progress}]"
-    print(t, end="\r")
-    
+def convert_files():
+    a = Thread(target=show_progress, args=('\r',))
+    a.start()
+    workers = []
+    for i in range(_t):
+        workers.append(Thread(target=convert))       
+    for x in workers:
+        x.start()
+    for x in workers:
+        x.join()
+    a.join()
 
 def main():
     scan(par_path)
-    while files:
-        convert(files.pop())
-        show_progress(total)
+    convert_files()
 
 if __name__ == "__main__":
     main()
