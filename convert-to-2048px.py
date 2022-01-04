@@ -16,10 +16,9 @@ files = []
 
 if not argv[1:]:
     the_path = input("[ >>>> ] Drag or enter path to your folder: ")
-    if '"' in the_path:
-        the_path = the_path.replace('"', '')
-    if "'" in the_path:
-        the_path = the_path.replace("'", "")
+    the_path = the_path.strip()
+    the_path = the_path.replace('"', '')
+    the_path = the_path.replace("'", "")
 else:
     the_path = argv[1]
 
@@ -78,53 +77,53 @@ def convert():
     else:
         return
 
-def show_progress(ending):
+def show_progress():
     from time import sleep
     s = 0.1
     while True:
         converted = abs(total - len(files))
         t = f"<-     > Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s)
         converted = abs(total - len(files))
         t = f"< -    > Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s)
         converted = abs(total - len(files))
         t = f"<  -   > Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s)
         converted = abs(total - len(files))
         t = f"<   -  > Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s)
         converted = abs(total - len(files))
         t = f"<    - > Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s)
         converted = abs(total - len(files))
         t = f"<     -> Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s+s)
         converted = abs(total - len(files))
         t = f"<    - > Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s)
         converted = abs(total - len(files))
         t = f"<   -  > Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s)
         converted = abs(total - len(files))
         t = f"<  -   > Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s)
         converted = abs(total - len(files))
         t = f"< -    > Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s)
         converted = abs(total - len(files))
         t = f"<-     > Converting [{converted}/{total}] images."
-        print(t, end=ending)
+        print(t, end='\r')
         sleep(s)
         if not files:
             converted = abs(total - len(files))
@@ -132,7 +131,7 @@ def show_progress(ending):
             return
 
 def convert_files():
-    a = Thread(target=show_progress, args=('\r',))
+    a = Thread(target=show_progress)
     a.start()
     workers = []
     for i in range(_t):
