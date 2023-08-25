@@ -127,7 +127,7 @@ def show_progress():
         sleep(s)
         if not files:
             converted = abs(total - len(files))
-            print(f"[ Done ] Converted [{converted}/{total}] images")
+            print(f"[ Done ] Converted [{converted}/{total}] images    ")
             return
 
 def convert_files():
